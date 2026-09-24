@@ -33,7 +33,9 @@ function LoginForm() {
       router.push("/admin");
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.detail || "Login failed" : "Couldn't reach the server."
+        err instanceof ApiError
+          ? err.detail || "Login failed"
+          : "Couldn't reach the server.",
       );
     } finally {
       setSubmitting(false);
@@ -47,7 +49,9 @@ function LoginForm() {
         className="max-w-sm w-full bg-white p-8 rounded-3xl shadow-xl border border-slate-100"
       >
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Admin Login</h1>
-        <p className="text-slate-500 text-sm mb-6">Memorial Hospital feedback dashboard</p>
+        <p className="text-slate-500 text-sm mb-6">
+          Memorial Hospital feedback dashboard
+        </p>
 
         {expired && (
           <p className="mb-4 text-sm bg-amber-50 text-amber-700 border border-amber-200 rounded-xl px-4 py-2">
@@ -60,7 +64,9 @@ function LoginForm() {
           </p>
         )}
 
-        <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">
+          Email
+        </label>
         <input
           type="email"
           required
@@ -69,7 +75,9 @@ function LoginForm() {
           className="w-full mb-4 p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
         />
 
-        <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+        <label className="block text-sm font-medium text-slate-700 mb-1">
+          Password
+        </label>
         <input
           type="password"
           required

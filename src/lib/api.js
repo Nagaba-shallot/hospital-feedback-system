@@ -1,8 +1,3 @@
-// Thin fetch wrapper around the Hospital Feedback System API.
-//
-// Set NEXT_PUBLIC_API_URL in .env.local to point at your backend
-// (defaults to http://localhost:8000 for local dev).
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 class ApiError extends Error {
@@ -31,7 +26,6 @@ async function request(path, { method = "GET", body, token, sessionToken, isForm
   try {
     data = await res.json();
   } catch {
-    // no body
   }
 
   if (!res.ok) {
@@ -45,7 +39,6 @@ async function request(path, { method = "GET", body, token, sessionToken, isForm
   return data;
 }
 
-// --- public: patient survey flow -------------------------------------------
 
 export function scanQrCode(qrCodeToken) {
   return request(`/qr-scan/${encodeURIComponent(qrCodeToken)}`, { method: "POST" });
@@ -61,7 +54,6 @@ export function listQuestions(feedbackCategoryId) {
 }
 
 export function submitAnswer(sessionToken, answer) {
-  // answer: { question_id, rating_value | text_response | yes_no_value }
   return request("/feedback-responses", { method: "POST", body: answer, sessionToken });
 }
 
@@ -73,7 +65,6 @@ export function getMyAnswers(sessionToken) {
   return request("/feedback-responses/me", { sessionToken });
 }
 
-// --- admin auth --------------------------------------------------------------
 
 export function adminLogin(email, password) {
   const form = new URLSearchParams();
@@ -85,8 +76,6 @@ export function adminLogin(email, password) {
 export function getMyAdminProfile(token) {
   return request("/admins/me", { token });
 }
-
-// --- admin: departments --------------------------------------------------------
 
 export function listDepartmentsPublic() {
   return request("/departments");
@@ -103,8 +92,6 @@ export function createDepartment(token, name) {
 export function getDepartmentQrToken(token, departmentId) {
   return request(`/departments/${departmentId}/qr-token`, { token });
 }
-
-// --- admin: feedback --------------------------------------------------------
 
 export function listFeedbackResponses(token, { patientId, questionId } = {}) {
   const params = new URLSearchParams();

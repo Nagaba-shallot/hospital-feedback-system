@@ -1,8 +1,3 @@
-// No department token in the URL — this page is only reached if someone
-// navigates to /survey directly instead of scanning a department's QR code.
-// Each department's link is /survey/{qr_code_token}; there's no meaningful
-// "generic" survey since questions are grouped and tracked per department.
-
 export default function SurveyLandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
