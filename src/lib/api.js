@@ -85,7 +85,7 @@ export function adminLogin(email, password) {
 }
 
 export function getMyAdminProfile(token) {
-  return request("/admins/me", { token });
+  return request("/admin/me", { token });
 }
 
 export function listDepartmentsPublic() {
@@ -127,27 +127,27 @@ export function createAdminReply(token, feedbackResponseId, replyText) {
 
 
 export function listAdmins(token) {
-  return request("/admins", { token });
+  return request("/admin", { token });
 }
 
 export function getAdmin(token, adminId) {
-  return request(`/admins/${adminId}`, { token });
+  return request(`/admin/${adminId}`, { token });
 }
 
 export function createAdmin(token, payload) {
-  return request("/admins", { method: "POST", body: payload, token });
+  return request("/admin", { method: "POST", body: payload, token });
 }
 
 export function updateAdmin(token, adminId, payload) {
-  return request(`/admins/${adminId}`, { method: "PATCH", body: payload, token });
+  return request(`/admin/${adminId}`, { method: "PATCH", body: payload, token });
 }
 
 export function deleteAdmin(token, adminId) {
-  return request(`/admins/${adminId}`, { method: "DELETE", token });
+  return request(`/admin/${adminId}`, { method: "DELETE", token });
 }
 
 export function changeMyPassword(token, currentPassword, newPassword) {
-  return request("/admins/me/password", {
+  return request("/admin/me/password", {
     method: "PATCH",
     token,
     body: { current_password: currentPassword, new_password: newPassword },
