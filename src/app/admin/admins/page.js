@@ -18,7 +18,9 @@ export default function AdminsPage() {
       setError("");
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.detail || "Failed to load admins" : "Failed to load admins"
+        err instanceof ApiError
+          ? err.detail || "Failed to load admins"
+          : "Failed to load admins"
       );
     } finally {
       setLoading(false);
@@ -31,7 +33,6 @@ export default function AdminsPage() {
 
   if (authStatus !== "ready") return null;
 
-  // Guard: only super_admin sees this page's content
   if (admin?.role !== "super_admin") {
     return (
       <div className="bg-white rounded-2xl border border-slate-100 p-10 text-center">
@@ -109,9 +110,10 @@ function CreateAdminForm({ token, onCreated }) {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState(null); // { type: "ok" | "error", text }
+  const [message, setMessage] = useState(null);
 
-  const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const update = (key) => (e) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -131,14 +133,18 @@ function CreateAdminForm({ token, onCreated }) {
     } catch (err) {
       setMessage({
         type: "error",
-        text: err instanceof ApiError ? err.detail || "Failed to create admin" : "Failed to create admin",
+        text:
+          err instanceof ApiError
+            ? err.detail || "Failed to create admin"
+            : "Failed to create admin",
       });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const field = "w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm";
+  const field =
+    "w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm";
 
   return (
     <form
@@ -231,7 +237,11 @@ function AdminRow({ admin, token, currentAdminId, onDeleted }) {
       await deleteAdmin(token, admin.admin_id);
       onDeleted();
     } catch (err) {
-      alert(err instanceof ApiError ? err.detail || "Failed to delete" : "Failed to delete");
+      alert(
+        err instanceof ApiError
+          ? err.detail || "Failed to delete"
+          : "Failed to delete"
+      );
     } finally {
       setDeleting(false);
     }
