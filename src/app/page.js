@@ -1,4 +1,4 @@
-import QrGenerator from "../components/QrCode";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -18,39 +18,22 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto py-16 px-6 grid md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6">
-          <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
-            Your Voice Guides Our Care
-          </h2>
-          <p className="text-slate-600 leading-relaxed text-base">
-            We continually strive to improve our hospitality, emergency response
-            times and patient care systems. Please scan the QR code using your
-            mobile phone camera to open our brief feedback portal.
-          </p>
-
-          <div className="space-y-3 pt-2 text-sm text-slate-600 font-medium">
-            <div className="flex items-center gap-3">
-              <span className="text-blue-500 text-base">✨</span> Completely
-              anonymous and confidential
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-blue-500 text-base">⏱️</span> Takes fewer
-              minutes to complete
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-blue-500 text-base">📋</span> Directly
-              reviewed by administrative boards
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-center md:justify-end">
-          <div className="transform hover:scale-102 transition-transform duration-300">
-            <QrGenerator />
-          </div>
-        </div>
+      <main className="max-w-3xl mx-auto py-16 px-6 text-center space-y-6">
+        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
+          Your Voice Guides Our Care
+        </h2>
+        <p className="text-slate-600 leading-relaxed text-base max-w-xl mx-auto">
+          Look for the feedback QR code posted in the department you visited
+          and scan it with your phone&apos;s camera to share your experience.
+          It only takes a couple of minutes and is completely confidential.
+        </p>
       </main>
+
+      <footer className="text-center pb-10">
+        <Link href="/admin/login" className="text-xs text-slate-400 hover:text-slate-600">
+          Staff login
+        </Link>
+      </footer>
     </div>
   );
 }

@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Hospital Feedback System — Frontend
 
-## Getting Started
+A Next.js (App Router) frontend for the Hospital Feedback System API. Patients
+scan a department's QR code to fill out a short survey; hospital admins log
+in to view responses and reply.
 
-First, run the development server:
+This app is a pure client that talks to the [backend API](../backend) over
+HTTP — it holds no database of its own and does no server-side rendering of
+private data. Every request goes through `src/lib/api.js`.
+
+## Tech stack
+
+- **Next.js** (App Router, client components)
+- **Tailwind CSS** for styling
+- **`qrcode.react`** for rendering department QR codes in the admin UI
+
+## Prerequisites
+
+- Node.js (LTS)
+- The backend API running somewhere reachable (locally at
+  `http://localhost:8000` by default — see the backend's own README)
+
+## Setup
+
+```bash
+npm install
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` and point it at your backend: 
+```NEXT_PUBLIC_API_URL=http://localhost:8000```
+
+Then run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## First-time setup: creating an admin
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+There's no seeded admin account. The very first account is created via the
+public bootstrap route — either call the API directly:
 
-## Learn More
+```bash
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"first_name":"Jane","last_name":"Doe","email":"jane@hospital.org","password":"a-very-strong-password","hospital_name":"Memorial Hospital"}'
+```
 
-To learn more about Next.js, take a look at the following resources:
+or use the backend's `/docs` page. That first account becomes `super_admin`.
+Once you have an account, log in at `/admin/login`. A `super_admin` can
+create further admin accounts via the API's `/admins` endpoint (there's no
+frontend UI for this yet — see Known gaps below).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How it fits together
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Patients** never see a login screen. Scanning a department's QR code opens
+`/survey/{qr_code_token}`, which:
+1. Calls `POST /qr-scan/{token}` to start an anonymous session (returns an
+   opaque session token, stored in `sessionStorage` — it doesn't outlive the
+   tab).
+2. Fetches the live list of feedback categories and questions from the API
+   (nothing is hardcoded in the frontend).
+3. Saves each answer to the API immediately as the patient selects it, so
+   nothing is lost if they close the tab partway through.
 
-## Deploy on Vercel
+**Admins** log in at `/admin/login` with email/password and get a JWT
+(stored in `localStorage`, 30-minute lifetime set by the backend). From
+there:
+- `/admin` — every feedback response, newest first, with an inline reply
+  box per response.
+- `/admin/departments` — create departments and reveal/print each one's QR
+  code. **This is how the links patients scan are generated** — QR tokens
+  are admin-only by design (a public "generate a QR" page would mean every
+  department shares the same code, which defeats tracking feedback by
+  department).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment variables
+
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `NEXT_PUBLIC_API_URL` | yes | `http://localhost:8000` | Base URL of the backend API. Exposed to the browser (it's prefixed `NEXT_PUBLIC_`), since all requests are made client-side. |
+
+## Known gaps / next pass
+
+- No UI yet for managing feedback categories/questions — currently
+  admin-only via the API directly (`POST /feedback-categories`,
+  `POST /questions`).
+- No UI for a `super_admin` to create further admin accounts — currently
+  via the API directly (`POST /admins`).
+- No department-based filtering on the responses dashboard yet.
+- Reply box has no delete/edit UI (the API supports it, the frontend
+  doesn't expose it yet).
+- No automated frontend tests yet (the backend has a pytest suite; nothing
+  equivalent — e.g. Playwright/Vitest — exists here yet).
+
+## Troubleshooting
+
+- **Survey page shows "This survey link is invalid or no longer active"**:
+  the QR token doesn't match an active department, or the department was
+  deactivated. Check `/admin/departments`.
+- **Admin pages redirect straight back to `/admin/login`**: the stored JWT
+  is missing, expired (30 min by default), or the backend isn't reachable at
+  `NEXT_PUBLIC_API_URL`. Check the browser console/network tab for the
+  actual API error.
+- **CORS errors in the browser console**: the backend's `ALLOWED_ORIGINS`
+  setting needs to include this app's origin (e.g. `http://localhost:3000`).
