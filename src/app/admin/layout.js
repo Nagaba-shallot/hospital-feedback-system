@@ -49,10 +49,12 @@ function Guarded({ children }) {
     <div className="min-h-screen bg-slate-50 font-sans">
       <nav className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <span className="font-bold text-slate-900">🏥 Feedback Admin</span>
+          <span className="font-bold text-slate-900"> Admin Portal</span>
           <div className="flex gap-1">
             {navLink("/admin", "Responses")}
             {navLink("/admin/departments", "Departments")}
+            {admin?.role === "super_admin" && navLink("/admin/admins", "Admins")}
+            {navLink("/admin/settings", "Settings")}
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm">

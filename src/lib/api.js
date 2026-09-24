@@ -29,12 +29,23 @@ async function request(path, { method = "GET", body, token, sessionToken, isForm
   }
 
   if (!res.ok) {
-    const detail = data?.detail || res.statusText;
-    throw new ApiError(
-      typeof detail === "string" ? detail : "Request failed",
-      res.status,
-      detail
-    );
+    let detail = data?.detail ?? res.statusText;
+    let message;
+
+    if (typeof detail === "string") {
+      message = detail;
+    } else if (Array.isArray(detail)) {
+      message = detail
+        .map((d) => {
+          const field = Array.isArray(d.loc) ? d.loc[d.loc.length - 1] : "";
+          return field ? `${field}: ${d.msg}` : d.msg;
+        })
+        .join("; ");
+    } else {
+      message = "Request failed";
+    }
+
+    throw new ApiError(message, res.status, detail);
   }
   return data;
 }
@@ -111,6 +122,35 @@ export function createAdminReply(token, feedbackResponseId, replyText) {
     method: "POST",
     token,
     body: { feedback_response_id: feedbackResponseId, reply_text: replyText },
+  });
+}
+
+
+export function listAdmins(token) {
+  return request("/admins", { token });
+}
+
+export function getAdmin(token, adminId) {
+  return request(`/admins/${adminId}`, { token });
+}
+
+export function createAdmin(token, payload) {
+  return request("/admins", { method: "POST", body: payload, token });
+}
+
+export function updateAdmin(token, adminId, payload) {
+  return request(`/admins/${adminId}`, { method: "PATCH", body: payload, token });
+}
+
+export function deleteAdmin(token, adminId) {
+  return request(`/admins/${adminId}`, { method: "DELETE", token });
+}
+
+export function changeMyPassword(token, currentPassword, newPassword) {
+  return request("/admins/me/password", {
+    method: "PATCH",
+    token,
+    body: { current_password: currentPassword, new_password: newPassword },
   });
 }
 
