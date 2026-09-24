@@ -9,8 +9,6 @@ import { clearAdminToken } from "@/lib/storage";
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
 
-  // The login page manages its own (unauthenticated) state and shouldn't
-  // be gated behind the same guard that redirects *to* it.
   if (pathname === "/admin/login") {
     return children;
   }

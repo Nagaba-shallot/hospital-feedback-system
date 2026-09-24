@@ -5,14 +5,11 @@ import { useRouter } from "next/navigation";
 import { getMyAdminProfile, ApiError } from "@/lib/api";
 import { getAdminToken, clearAdminToken } from "@/lib/storage";
 
-// Verifies the stored admin token against the API (not just "is it
-// present") so an expired or revoked token bounces back to /admin/login
-// instead of the page rendering with a token that'll just 401 on every call.
 export function useAdminAuth() {
   const router = useRouter();
   const [admin, setAdmin] = useState(null);
   const [token, setToken] = useState(null);
-  const [status, setStatus] = useState("checking"); // checking | ready
+  const [status, setStatus] = useState("checking"); 
 
   useEffect(() => {
     let cancelled = false;

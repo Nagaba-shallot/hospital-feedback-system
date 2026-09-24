@@ -11,7 +11,7 @@ export default function DepartmentsPage() {
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
-  const [qrByDept, setQrByDept] = useState({}); // department_id -> scan URL
+  const [qrByDept, setQrByDept] = useState({}); 
 
   const load = async () => {
     setLoading(true);
@@ -22,7 +22,6 @@ export default function DepartmentsPage() {
 
   useEffect(() => {
     if (authStatus === "ready" && token) load().catch(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authStatus, token]);
 
   if (authStatus !== "ready") return null;

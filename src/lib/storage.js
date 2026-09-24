@@ -1,12 +1,3 @@
-// Small wrappers around browser storage. Split by purpose so the two token
-// types can't accidentally get mixed up.
-//
-// - Patient session tokens live in sessionStorage: they're meant to die with
-//   the tab, since a survey session is a one-time, anonymous thing.
-// - Admin JWTs live in localStorage so an admin isn't logged out on every
-//   refresh. They're short-lived (30 min by default, set server-side), which
-//   bounds how long a stolen token is useful.
-
 const PATIENT_SESSION_KEY = "hfs_patient_session";
 const ADMIN_TOKEN_KEY = "hfs_admin_token";
 
@@ -25,7 +16,6 @@ function safeSet(storage, key, value) {
     if (value === null) storage.removeItem(key);
     else storage.setItem(key, value);
   } catch {
-    // storage unavailable (private browsing, etc.) — fail silently
   }
 }
 

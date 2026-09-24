@@ -11,13 +11,13 @@ export default function SurveyPage() {
   const params = useParams();
   const qrToken = params?.token;
 
-  const [status, setStatus] = useState("loading"); // loading | error | ready | submitted
+  const [status, setStatus] = useState("loading"); 
   const [errorMessage, setErrorMessage] = useState("");
-  const [session, setSession] = useState(null); // { session_token, patient_id, department_visited }
+  const [session, setSession] = useState(null); 
   const [categories, setCategories] = useState([]);
   const [questionsByCategory, setQuestionsByCategory] = useState({});
-  const [answers, setAnswers] = useState({}); // question_id -> value
-  const [saving, setSaving] = useState({}); // question_id -> bool
+  const [answers, setAnswers] = useState({}); 
+  const [saving, setSaving] = useState({}); 
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
@@ -26,8 +26,6 @@ export default function SurveyPage() {
 
     async function bootstrap() {
       try {
-        // Reuse an existing session for this exact QR link (e.g. on refresh)
-        // rather than scanning again and creating a second patient record.
         let activeSession = getPatientSession();
         if (!activeSession || activeSession.qrToken !== qrToken) {
           const scanResult = await scanQrCode(qrToken);
@@ -98,9 +96,7 @@ export default function SurveyPage() {
     try {
       await submitAnswer(session.session_token, payload);
     } catch {
-      // Leave the local answer in place; it'll retry naturally if the user
-      // changes it, and nothing is lost from their perspective. A production
-      // build might surface a small inline "couldn't save, retrying" note.
+
     } finally {
       setSaving((prev) => ({ ...prev, [question.question_id]: false }));
     }
