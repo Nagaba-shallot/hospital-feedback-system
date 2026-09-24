@@ -75,7 +75,7 @@ function LoginForm() {
           id="admin-email"
           type="email"
           required
-          autoComplete="username"
+          autoComplete="off"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@memorial.org"
@@ -93,7 +93,7 @@ function LoginForm() {
             id="admin-password"
             type={showPassword ? "text" : "password"}
             required
-            autoComplete="current-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"

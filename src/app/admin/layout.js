@@ -53,6 +53,8 @@ function Guarded({ children }) {
           <div className="flex gap-1">
             {navLink("/admin", "Responses")}
             {navLink("/admin/departments", "Departments")}
+            {admin?.role === "super_admin" && navLink("/admin/admins", "Admins")}
+            {navLink("/admin/settings", "Settings")}
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm">
