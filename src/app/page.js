@@ -30,7 +30,7 @@ export default function Home() {
       </main>
 
       <footer className="text-center pb-10">
-        <Link href="/admin/login" className="text-xs text-slate-400 hover:text-slate-600">
+        <Link href="/admin/login" className="text-xl text-blue-400 hover:text-blue-900">
           Staff login
         </Link>
       </footer>
