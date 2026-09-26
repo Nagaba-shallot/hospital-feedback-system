@@ -66,7 +66,7 @@ export default function DepartmentsPage() {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="New department name"
-          className="flex-1 p-2.5 border border-slate-200 rounded-xl bg-white focus:border-blue-500 outline-none text-sm"
+          className="flex-1 p-2.5 border border-slate-200 rounded-xl bg-white text-blue-500  focus:border-blue-500 outline-none text-sm"
         />
         <button
           type="submit"

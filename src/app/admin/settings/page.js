@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/lib/useAdminAuth";
-import { changeMyPassword, ApiError } from "@/lib/api";
+import { changeMyPassword, ApiError, formatApiError } from "@/lib/api";
 import { clearAdminToken } from "@/lib/storage";
 
 export default function SettingsPage() {
@@ -28,7 +28,10 @@ export default function SettingsPage() {
       return;
     }
     if (newPassword.length < 12) {
-      setMessage({ type: "error", text: "New password must be at least 12 characters." });
+      setMessage({
+        type: "error",
+        text: "New password must be at least 12 characters.",
+      });
       return;
     }
 
@@ -44,7 +47,10 @@ export default function SettingsPage() {
     } catch (err) {
       setMessage({
         type: "error",
-        text: err instanceof ApiError ? err.detail || "Failed to change password" : "Failed to change password",
+        text:
+          err instanceof ApiError
+            ? formatApiError(err)
+            : "Failed to change password",
       });
       setSubmitting(false);
     }
@@ -55,12 +61,15 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-md">
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Account Settings</h1>
-      <p className="text-slate-500 text-sm mb-6">
-        Signed in as {admin?.email}
-      </p>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">
+        Account Settings
+      </h1>
+      <p className="text-slate-500 text-sm mb-6">Signed in as {admin?.email}</p>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-2xl border border-slate-100 p-6"
+      >
         <h2 className="font-semibold text-slate-900 mb-4">Change password</h2>
 
         {message && (

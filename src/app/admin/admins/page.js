@@ -168,10 +168,10 @@ function CreateAdminForm({ token, onCreated }) {
       <div className="grid sm:grid-cols-2 gap-3 mb-3">
         <input
           required
-          placeholder="First name"
+          placeholder="First name" 
           value={form.first_name}
           onChange={update("first_name")}
-          className={field}
+          className={field} 
         />
         <input
           required
