@@ -154,4 +154,47 @@ export function changeMyPassword(token, currentPassword, newPassword) {
   });
 }
 
+
+export function generateSurveyDraft(token, { focus, num_categories, questions_per_category }) {
+  return request("/ai/generate-survey", {
+    method: "POST",
+    token,
+    body: { focus, num_categories, questions_per_category },
+  });
+}
+
+export function createFeedbackCategory(token, payload) {
+  return request("/feedback-categories", { method: "POST", body: payload, token });
+}
+
+export function createQuestion(token, payload) {
+  return request("/questions", { method: "POST", body: payload, token });
+}
+
+export function replaceSurvey(token, payload) {
+  return request("/feedback-categories/admin/survey/replace", { method: "POST", token, body: payload });
+}
+
+export function formatApiError(err) {
+  if (!err) return "Something went wrong.";
+  if (typeof err === "string") return err;
+
+  const detail = err.detail ?? err.message ?? err;
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((d) => {
+        const loc = Array.isArray(d?.loc)
+          ? d.loc.filter((x) => x !== "body").join(".")
+          : "";
+        const msg = d?.msg ?? JSON.stringify(d);
+        return loc ? `${loc}: ${msg}` : msg;
+      })
+      .join("; ");
+  }
+
+  try { return JSON.stringify(detail); } catch { return String(detail); }
+}
+
 export { ApiError, API_URL };
