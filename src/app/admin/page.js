@@ -47,10 +47,6 @@ export default function AdminResponsesPage() {
     };
   }, [authStatus, token]);
 
-  useEffect(() => {
-    setVisible(20);
-  }, [departmentFilter, sortBy, search]);
-
   const visits = useMemo(() => {
     const byPatient = new Map();
     for (const r of rows) {
@@ -148,7 +144,10 @@ export default function AdminResponsesPage() {
       {/* Search */}
       <input
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setVisible(20);
+        }}
         placeholder="Search patients, departments, or comments…"
         className="w-full mb-3 px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-blue-900 focus:border-blue-500 outline-none"
       />
@@ -157,7 +156,10 @@ export default function AdminResponsesPage() {
       <div className="flex flex-wrap gap-3 mb-6">
         <select
           value={departmentFilter}
-          onChange={(e) => setDepartmentFilter(e.target.value)}
+          onChange={(e) => {
+            setDepartmentFilter(e.target.value);
+            setVisible(20);
+          }}
           className="px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-blue-900 focus:border-blue-500 outline-none"
         >
           <option value="all">All departments</option>
@@ -169,7 +171,10 @@ export default function AdminResponsesPage() {
         </select>
         <select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(e) => {
+            setSortBy(e.target.value);
+            setVisible(20);
+          }}
           className="px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white text-blue-900 focus:border-blue-500 outline-none"
         >
           <option value="newest">Newest first</option>

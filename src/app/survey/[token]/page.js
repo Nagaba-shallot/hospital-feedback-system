@@ -2,7 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { scanQrCode, listFeedbackCategories, listQuestions, submitAnswer, getMyAnswers, ApiError } from "@/lib/api";
+import {
+  scanQrCode,
+  listFeedbackCategories,
+  listQuestions,
+  submitAnswer,
+  getMyAnswers,
+  ApiError,
+} from "@/lib/api";
 import { getPatientSession, setPatientSession } from "@/lib/storage";
 
 const RATING_EMOJI = { 5: "🤩", 4: "🙂", 3: "😐", 2: "🙁", 1: "😟" };
@@ -11,13 +18,13 @@ export default function SurveyPage() {
   const params = useParams();
   const qrToken = params?.token;
 
-  const [status, setStatus] = useState("loading"); 
+  const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
-  const [session, setSession] = useState(null); 
+  const [session, setSession] = useState(null);
   const [categories, setCategories] = useState([]);
   const [questionsByCategory, setQuestionsByCategory] = useState({});
-  const [answers, setAnswers] = useState({}); 
-  const [saving, setSaving] = useState({}); 
+  const [answers, setAnswers] = useState({});
+  const [saving, setSaving] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
@@ -36,23 +43,29 @@ export default function SurveyPage() {
         setSession(activeSession);
 
         const [cats, allQuestions, myAnswers] = await Promise.all([
-          listFeedbackCategories(),
+          listFeedbackCategories(activeSession.department_id),
           listQuestions(),
           getMyAnswers(activeSession.session_token),
         ]);
         if (cancelled) return;
 
-        const sortedCats = [...cats].sort((a, b) => a.display_order - b.display_order);
+        const sortedCats = [...cats].sort(
+          (a, b) => a.display_order - b.display_order,
+        );
         const grouped = {};
         for (const cat of sortedCats) {
           grouped[cat.feedback_category_id] = allQuestions
             .filter((q) => q.feedback_category_id === cat.feedback_category_id)
-            .sort((a, b) => a.order_in_feedback_category - b.order_in_feedback_category);
+            .sort(
+              (a, b) =>
+                a.order_in_feedback_category - b.order_in_feedback_category,
+            );
         }
 
         const prefilled = {};
         for (const a of myAnswers) {
-          prefilled[a.question_id] = a.rating_value ?? a.text_response ?? a.yes_no_value;
+          prefilled[a.question_id] =
+            a.rating_value ?? a.text_response ?? a.yes_no_value;
         }
 
         setCategories(sortedCats);
@@ -96,7 +109,6 @@ export default function SurveyPage() {
     try {
       await submitAnswer(session.session_token, payload);
     } catch {
-
     } finally {
       setSaving((prev) => ({ ...prev, [question.question_id]: false }));
     }
@@ -125,7 +137,9 @@ export default function SurveyPage() {
         <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
           !
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Can&apos;t open this survey</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">
+          Can&apos;t open this survey
+        </h2>
         <p className="text-slate-500">{errorMessage}</p>
       </CenteredCard>
     );
@@ -139,7 +153,8 @@ export default function SurveyPage() {
         </div>
         <h2 className="text-2xl font-bold text-slate-900 mb-2">Thank You!</h2>
         <p className="text-slate-500 mb-6">
-          Your response has been securely submitted to our quality improvement team.
+          Your response has been securely submitted to our quality improvement
+          team.
         </p>
       </CenteredCard>
     );
@@ -149,7 +164,8 @@ export default function SurveyPage() {
     return (
       <CenteredCard>
         <p className="text-slate-500">
-          There isn&apos;t a survey configured for this department yet. Please check back later.
+          There isn&apos;t a survey configured for this department yet. Please
+          check back later.
         </p>
       </CenteredCard>
     );
@@ -160,7 +176,8 @@ export default function SurveyPage() {
       <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
         <div className="bg-blue-900 p-8 text-white">
           <span className="text-xs font-bold uppercase tracking-widest text-blue-300">
-            {session?.department_visited} · Category {currentStep + 1} of {categories.length}
+            {session?.department_visited} · Category {currentStep + 1} of{" "}
+            {categories.length}
           </span>
           <h2 className="text-2xl font-bold mt-1">{currentCategory?.name}</h2>
           <div className="w-full bg-blue-950 h-2 rounded-full mt-4 overflow-hidden">
@@ -173,7 +190,10 @@ export default function SurveyPage() {
 
         <div className="p-8 space-y-8">
           {currentQuestions.map((q) => (
-            <div key={q.question_id} className="border-b border-slate-50 pb-6 last:border-0">
+            <div
+              key={q.question_id}
+              className="border-b border-slate-50 pb-6 last:border-0"
+            >
               <label className="block text-slate-800 font-semibold mb-4 text-base">
                 {q.question_text}
                 {q.is_required && <span className="text-red-400"> *</span>}
@@ -233,7 +253,8 @@ export default function SurveyPage() {
                   rows={4}
                   defaultValue={answers[q.question_id] || ""}
                   onBlur={(e) => {
-                    if (e.target.value.trim()) handleAnswer(q, e.target.value.trim());
+                    if (e.target.value.trim())
+                      handleAnswer(q, e.target.value.trim());
                   }}
                   className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-slate-400"
                   placeholder="Tell us more about your experience..."
@@ -255,7 +276,9 @@ export default function SurveyPage() {
             onClick={handleNext}
             className="bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-md"
           >
-            {currentStep === categories.length - 1 ? "Submit Feedback" : "Save & Continue"}
+            {currentStep === categories.length - 1
+              ? "Submit Feedback"
+              : "Save & Continue"}
           </button>
         </div>
       </div>

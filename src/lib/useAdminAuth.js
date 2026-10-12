@@ -9,7 +9,7 @@ export function useAdminAuth() {
   const router = useRouter();
   const [admin, setAdmin] = useState(null);
   const [token, setToken] = useState(null);
-  const [status, setStatus] = useState("checking"); 
+  const [status, setStatus] = useState("checking");
 
   useEffect(() => {
     let cancelled = false;

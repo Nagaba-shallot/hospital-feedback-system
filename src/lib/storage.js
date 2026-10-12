@@ -15,8 +15,7 @@ function safeSet(storage, key, value) {
   try {
     if (value === null) storage.removeItem(key);
     else storage.setItem(key, value);
-  } catch {
-  }
+  } catch {}
 }
 
 export function getPatientSession() {
@@ -25,7 +24,11 @@ export function getPatientSession() {
 }
 
 export function setPatientSession(session) {
-  safeSet(window.sessionStorage, PATIENT_SESSION_KEY, session ? JSON.stringify(session) : null);
+  safeSet(
+    window.sessionStorage,
+    PATIENT_SESSION_KEY,
+    session ? JSON.stringify(session) : null,
+  );
 }
 
 export function getAdminToken() {

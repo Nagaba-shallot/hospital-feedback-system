@@ -27,8 +27,8 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Edit `.env.local` and point it at your backend: 
-```NEXT_PUBLIC_API_URL=http://localhost:8000```
+Edit `.env.local` and point it at your backend:
+`NEXT_PUBLIC_API_URL=http://localhost:8000`
 
 Then run the dev server:
 
@@ -58,6 +58,7 @@ frontend UI for this yet — see Known gaps below).
 
 **Patients** never see a login screen. Scanning a department's QR code opens
 `/survey/{qr_code_token}`, which:
+
 1. Calls `POST /qr-scan/{token}` to start an anonymous session (returns an
    opaque session token, stored in `sessionStorage` — it doesn't outlive the
    tab).
@@ -69,6 +70,7 @@ frontend UI for this yet — see Known gaps below).
 **Admins** log in at `/admin/login` with email/password and get a JWT
 (stored in `localStorage`, 30-minute lifetime set by the backend). From
 there:
+
 - `/admin` — every feedback response, newest first, with an inline reply
   box per response.
 - `/admin/departments` — create departments and reveal/print each one's QR
@@ -77,12 +79,11 @@ there:
   department shares the same code, which defeats tracking feedback by
   department).
 
-
 ## Environment variables
 
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_URL` | yes | `http://localhost:8000` | Base URL of the backend API. Exposed to the browser (it's prefixed `NEXT_PUBLIC_`), since all requests are made client-side. |
+| Variable              | Required | Default                 | Purpose                                                                                                                      |
+| --------------------- | -------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | yes      | `http://localhost:8000` | Base URL of the backend API. Exposed to the browser (it's prefixed `NEXT_PUBLIC_`), since all requests are made client-side. |
 
 ## Known gaps / next pass
 

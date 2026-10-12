@@ -9,27 +9,42 @@ export default function AdminsPage() {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      const data = await listAdmins(token);
-      setAdmins(data);
-      setError("");
-    } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.detail || "Failed to load admins"
-          : "Failed to load admins"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (authStatus === "ready" && token) load();
-  }, [authStatus, token]);
+    if (authStatus !== "ready" || !token) return;
+
+    let cancelled = false;
+
+    async function fetchAdmins() {
+      try {
+        const data = await listAdmins(token);
+
+        if (cancelled) return;
+
+        setAdmins(data);
+        setError("");
+      } catch (err) {
+        if (cancelled) return;
+
+        setError(
+          err instanceof ApiError
+            ? err.detail || "Failed to load admins"
+            : "Failed to load admins",
+        );
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchAdmins();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authStatus, token, refreshKey]);
 
   if (authStatus !== "ready") return null;
 
@@ -58,7 +73,10 @@ export default function AdminsPage() {
         </p>
       )}
 
-      <CreateAdminForm token={token} onCreated={load} />
+      <CreateAdminForm
+        token={token}
+        onCreated={() => setRefreshKey((key) => key + 1)}
+      />
 
       {loading ? (
         <p className="text-slate-400 animate-pulse mt-6">Loading…</p>
@@ -82,12 +100,15 @@ export default function AdminsPage() {
                   admin={a}
                   token={token}
                   currentAdminId={admin?.admin_id}
-                  onDeleted={load}
+                  onDeleted={() => setRefreshKey((key) => key + 1)}
                 />
               ))}
               {admins.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-8 text-center text-slate-400"
+                  >
                     No admins yet.
                   </td>
                 </tr>
@@ -168,10 +189,10 @@ function CreateAdminForm({ token, onCreated }) {
       <div className="grid sm:grid-cols-2 gap-3 mb-3">
         <input
           required
-          placeholder="First name" 
+          placeholder="First name"
           value={form.first_name}
           onChange={update("first_name")}
-          className={field} 
+          className={field}
         />
         <input
           required
@@ -240,7 +261,7 @@ function AdminRow({ admin, token, currentAdminId, onDeleted }) {
       alert(
         err instanceof ApiError
           ? err.detail || "Failed to delete"
-          : "Failed to delete"
+          : "Failed to delete",
       );
     } finally {
       setDeleting(false);
