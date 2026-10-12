@@ -8,9 +8,13 @@ class ApiError extends Error {
   }
 }
 
-async function request(path, { method = "GET", body, token, sessionToken, isForm = false } = {}) {
+async function request(
+  path,
+  { method = "GET", body, token, sessionToken, isForm = false } = {},
+) {
   const headers = {};
-  if (!isForm && body !== undefined) headers["Content-Type"] = "application/json";
+  if (!isForm && body !== undefined)
+    headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (sessionToken) headers["X-Session-Token"] = sessionToken;
 
@@ -25,8 +29,7 @@ async function request(path, { method = "GET", body, token, sessionToken, isForm
   let data = null;
   try {
     data = await res.json();
-  } catch {
-  }
+  } catch {}
 
   if (!res.ok) {
     let detail = data?.detail ?? res.statusText;
@@ -50,22 +53,30 @@ async function request(path, { method = "GET", body, token, sessionToken, isForm
   return data;
 }
 
-
 export function scanQrCode(qrCodeToken) {
-  return request(`/qr-scan/${encodeURIComponent(qrCodeToken)}`, { method: "POST" });
+  return request(`/qr-scan/${encodeURIComponent(qrCodeToken)}`, {
+    method: "POST",
+  });
 }
 
-export function listFeedbackCategories() {
-  return request("/feedback-categories");
+export function listFeedbackCategories(departmentId) {
+  const qs = departmentId ? `?department_id=${departmentId}` : "";
+  return request(`/feedback-categories${qs}`);
 }
 
 export function listQuestions(feedbackCategoryId) {
-  const qs = feedbackCategoryId ? `?feedback_category_id=${feedbackCategoryId}` : "";
+  const qs = feedbackCategoryId
+    ? `?feedback_category_id=${feedbackCategoryId}`
+    : "";
   return request(`/questions${qs}`);
 }
 
 export function submitAnswer(sessionToken, answer) {
-  return request("/feedback-responses", { method: "POST", body: answer, sessionToken });
+  return request("/feedback-responses", {
+    method: "POST",
+    body: answer,
+    sessionToken,
+  });
 }
 
 export function getMyProgress(sessionToken) {
@@ -75,7 +86,6 @@ export function getMyProgress(sessionToken) {
 export function getMyAnswers(sessionToken) {
   return request("/feedback-responses/me", { sessionToken });
 }
-
 
 export function adminLogin(email, password) {
   const form = new URLSearchParams();
@@ -113,7 +123,9 @@ export function listFeedbackResponses(token, { patientId, questionId } = {}) {
 }
 
 export function listAdminReplies(token, feedbackResponseId) {
-  const qs = feedbackResponseId ? `?feedback_response_id=${feedbackResponseId}` : "";
+  const qs = feedbackResponseId
+    ? `?feedback_response_id=${feedbackResponseId}`
+    : "";
   return request(`/admin-replies${qs}`, { token });
 }
 
@@ -124,7 +136,6 @@ export function createAdminReply(token, feedbackResponseId, replyText) {
     body: { feedback_response_id: feedbackResponseId, reply_text: replyText },
   });
 }
-
 
 export function listAdmins(token) {
   return request("/admin", { token });
@@ -139,7 +150,11 @@ export function createAdmin(token, payload) {
 }
 
 export function updateAdmin(token, adminId, payload) {
-  return request(`/admin/${adminId}`, { method: "PATCH", body: payload, token });
+  return request(`/admin/${adminId}`, {
+    method: "PATCH",
+    body: payload,
+    token,
+  });
 }
 
 export function deleteAdmin(token, adminId) {
@@ -154,8 +169,10 @@ export function changeMyPassword(token, currentPassword, newPassword) {
   });
 }
 
-
-export function generateSurveyDraft(token, { focus, num_categories, questions_per_category }) {
+export function generateSurveyDraft(
+  token,
+  { focus, num_categories, questions_per_category },
+) {
   return request("/ai/generate-survey", {
     method: "POST",
     token,
@@ -164,7 +181,11 @@ export function generateSurveyDraft(token, { focus, num_categories, questions_pe
 }
 
 export function createFeedbackCategory(token, payload) {
-  return request("/feedback-categories", { method: "POST", body: payload, token });
+  return request("/feedback-categories", {
+    method: "POST",
+    body: payload,
+    token,
+  });
 }
 
 export function createQuestion(token, payload) {
@@ -172,7 +193,11 @@ export function createQuestion(token, payload) {
 }
 
 export function replaceSurvey(token, payload) {
-  return request("/feedback-categories/admin/survey/replace", { method: "POST", token, body: payload });
+  return request("/feedback-categories/admin/survey/replace", {
+    method: "POST",
+    token,
+    body: payload,
+  });
 }
 
 export function formatApiError(err) {
@@ -194,7 +219,11 @@ export function formatApiError(err) {
       .join("; ");
   }
 
-  try { return JSON.stringify(detail); } catch { return String(detail); }
+  try {
+    return JSON.stringify(detail);
+  } catch {
+    return String(detail);
+  }
 }
 
 export { ApiError, API_URL };

@@ -23,14 +23,17 @@ export default function Home() {
           Your Voice Guides Our Care
         </h2>
         <p className="text-slate-600 leading-relaxed text-base max-w-xl mx-auto">
-          Look for the feedback QR code posted in the department you visited
-          and scan it with your phone&apos;s camera to share your experience.
-          It only takes a couple of minutes and is completely confidential.
+          Look for the feedback QR code posted in the department you visited and
+          scan it with your phone&apos;s camera to share your experience. It
+          only takes a couple of minutes and is completely confidential.
         </p>
       </main>
 
       <footer className="text-center pb-10">
-        <Link href="/admin/login" className="text-xl text-blue-400 hover:text-blue-900">
+        <Link
+          href="/admin/login"
+          className="text-xl text-blue-400 hover:text-blue-900"
+        >
           Staff login
         </Link>
       </footer>

@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAdminAuth } from "@/lib/useAdminAuth";
-import { generateSurveyDraft, replaceSurvey, ApiError } from "@/lib/api";
+import {
+  generateSurveyDraft,
+  replaceSurvey,
+  listDepartmentsAll,
+  ApiError,
+} from "@/lib/api";
 import ConfirmModal from "@/components/ConfirmModal";
 
 let _localId = 0;
@@ -14,18 +19,30 @@ export default function GenerateSurveyPage() {
   const [focus, setFocus] = useState("");
   const [numCategories, setNumCategories] = useState(3);
   const [questionsPerCategory, setQuestionsPerCategory] = useState(3);
+  const [departments, setDepartments] = useState([]);
+  const [departmentId, setDepartmentId] = useState(""); // "" = all departments (global)
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
+  const [unclearMessage, setUnclearMessage] = useState("");
   const [draft, setDraft] = useState(null);
   const [publishing, setPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState(null);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+
+  useEffect(() => {
+    if (authStatus === "ready" && token) {
+      listDepartmentsAll(token)
+        .then(setDepartments)
+        .catch(() => {});
+    }
+  }, [authStatus, token]);
 
   if (authStatus !== "ready") return null;
 
   const handleGenerate = async (e) => {
     e.preventDefault();
     setError("");
+    setUnclearMessage("");
     setPublishResult(null);
     setGenerating(true);
     try {
@@ -43,11 +60,21 @@ export default function GenerateSurveyPage() {
       };
       setDraft(withIds);
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.detail || "Generation failed"
-          : "Couldn't reach the server.",
-      );
+      if (err instanceof ApiError && err.status === 422) {
+        // Not a failure — the AI judged the focus area too vague or
+        // nonsensical to act on, and deliberately didn't invent content
+        // for it. Shown distinctly from a real error.
+        setUnclearMessage(
+          err.detail ||
+            "That doesn't describe a usable topic yet — try being more specific.",
+        );
+      } else {
+        setError(
+          err instanceof ApiError
+            ? err.detail || "Generation failed"
+            : "Couldn't reach the server.",
+        );
+      }
     } finally {
       setGenerating(false);
     }
@@ -109,7 +136,7 @@ export default function GenerateSurveyPage() {
             display_order: ci + 1,
             icon: c.icon || null,
             description: null,
-            department_id: null,
+            department_id: departmentId ? Number(departmentId) : null,
             questions: c.questions.map((q, qi) => ({
               question_text: q.question_text,
               question_type: q.question_type,
@@ -129,7 +156,11 @@ export default function GenerateSurveyPage() {
 
       const result = await replaceSurvey(token, payload);
       setPublishResult({
-        created: { categories: result.categories, questions: result.questions },
+        created: {
+          categories: result.categories_created,
+          questions: result.questions_created,
+        },
+        preserved: result.categories_preserved || [],
         failures: [],
       });
       setDraft(null);
@@ -146,6 +177,7 @@ export default function GenerateSurveyPage() {
       }
       setPublishResult({
         created: { categories: 0, questions: 0 },
+        preserved: [],
         failures: [msg],
       });
     } finally {
@@ -208,6 +240,28 @@ export default function GenerateSurveyPage() {
           </div>
         </div>
 
+        <label className="block text-sm font-medium text-black mb-1">
+          Applies to
+        </label>
+        <select
+          value={departmentId}
+          onChange={(e) => setDepartmentId(e.target.value)}
+          className="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-blue-500 outline-none text-sm mb-4"
+        >
+          <option value="">All departments (hospital-wide)</option>
+          {departments.map((d) => (
+            <option key={d.department_id} value={d.department_id}>
+              {d.name} only
+            </option>
+          ))}
+        </select>
+
+        {unclearMessage && (
+          <p className="mb-4 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-xl px-4 py-2">
+            {unclearMessage}
+          </p>
+        )}
+
         {error && (
           <p className="mb-4 text-sm bg-red-50 text-red-600 border border-red-200 rounded-xl px-4 py-2">
             {error}
@@ -235,6 +289,12 @@ export default function GenerateSurveyPage() {
             Created {publishResult.created.categories} categories and{" "}
             {publishResult.created.questions} questions.
           </p>
+          {publishResult.preserved && publishResult.preserved.length > 0 && (
+            <p className="mt-1">
+              Left untouched (already have patient responses recorded):{" "}
+              {publishResult.preserved.join(", ")}
+            </p>
+          )}
           {publishResult.failures.map((f, i) => (
             <p key={i} className="mt-1">
               {f}
@@ -320,7 +380,7 @@ export default function GenerateSurveyPage() {
       <ConfirmModal
         open={showPublishConfirm}
         title="Publish this survey?"
-        message="Publishing will REPLACE the current survey. Any existing categories and questions will be deleted. This cannot be undone."
+        message="Any existing category that has never received a patient response will be replaced by this draft. Categories that already have real patient responses recorded are never touched — they'll be listed separately if that happens."
         confirmLabel="Publish"
         cancelLabel="Cancel"
         busy={publishing}

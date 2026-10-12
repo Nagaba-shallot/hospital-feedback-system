@@ -1,9 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useAdminAuth } from "@/lib/useAdminAuth";
-import { listDepartmentsAll, createDepartment, getDepartmentQrToken } from "@/lib/api";
+import {
+  listDepartmentsAll,
+  createDepartment,
+  getDepartmentQrToken,
+} from "@/lib/api";
 
 export default function DepartmentsPage() {
   const { token, status: authStatus } = useAdminAuth();
@@ -11,18 +15,24 @@ export default function DepartmentsPage() {
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
-  const [qrByDept, setQrByDept] = useState({}); 
+  const [qrByDept, setQrByDept] = useState({});
 
-  const load = async () => {
-    setLoading(true);
-    const depts = await listDepartmentsAll(token);
-    setDepartments(depts);
-    setLoading(false);
-  };
+  const load = useCallback(async () => {
+    try {
+      const depts = await listDepartmentsAll(token);
+      setDepartments(depts);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   useEffect(() => {
-    if (authStatus === "ready" && token) load().catch(() => setLoading(false));
-  }, [authStatus, token]);
+    if (authStatus === "ready" && token) {
+      load().catch(() => {
+        setLoading(false);
+      });
+    }
+  }, [authStatus, token, load]);
 
   if (authStatus !== "ready") return null;
 
@@ -57,8 +67,8 @@ export default function DepartmentsPage() {
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-1">Departments</h1>
       <p className="text-slate-500 text-sm mb-6">
-        Each department has its own scannable QR code. Print or display the code so patients can
-        open that department&apos;s survey.
+        Each department has its own scannable QR code. Print or display the code
+        so patients can open that department&apos;s survey.
       </p>
 
       <form onSubmit={handleCreate} className="flex gap-2 mb-6 max-w-md">
@@ -82,7 +92,10 @@ export default function DepartmentsPage() {
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {departments.map((dept) => (
-            <div key={dept.department_id} className="bg-white rounded-2xl border border-slate-100 p-5">
+            <div
+              key={dept.department_id}
+              className="bg-white rounded-2xl border border-slate-100 p-5"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-slate-900">{dept.name}</p>
@@ -101,7 +114,11 @@ export default function DepartmentsPage() {
               {qrByDept[dept.department_id] && (
                 <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col items-center">
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <QRCodeSVG value={qrByDept[dept.department_id]} size={160} level="H" />
+                    <QRCodeSVG
+                      value={qrByDept[dept.department_id]}
+                      size={160}
+                      level="H"
+                    />
                   </div>
                   <p className="text-xs text-slate-400 mt-2 break-all text-center">
                     {qrByDept[dept.department_id]}

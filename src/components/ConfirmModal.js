@@ -23,9 +23,7 @@ export default function ConfirmModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        {message && (
-          <p className="mt-2 text-sm text-slate-500">{message}</p>
-        )}
+        {message && <p className="mt-2 text-sm text-slate-500">{message}</p>}
 
         <div className="mt-6 flex justify-end gap-3">
           <button
